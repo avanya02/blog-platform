@@ -1,0 +1,486 @@
+# Phase 1 — Planning
+
+### Objective
+
+Build a modern blogging platform where users can write, publish, and interact with blogs.
+
+### Users
+
+- Guest
+- Registered User
+- Admin
+
+### User Stories
+
+Guest can
+
+- Read blogs
+- Search blogs
+- View author profile
+- Register
+- Login
+
+User can
+
+- Create blog
+- Save draft
+- Edit blog
+- Delete blog
+- Upload images
+- Like blogs
+- Bookmark blogs
+- Comment
+- Follow authors
+- Update profile
+
+Admin can
+
+- Delete inappropriate blogs
+- Ban users
+- Manage categories
+- View analytics
+
+---
+
+# Phase 2 — Design Database
+
+## Tables
+
+```
+Users
+------
+id
+username
+email
+password_hash
+bio
+profile_picture
+created_at
+
+Posts
+------
+id
+user_id
+title
+slug
+content
+cover_image
+status
+reading_time
+views
+created_at
+updated_at
+
+Categories
+-----------
+id
+name
+
+Tags
+------
+id
+name
+
+PostTags
+---------
+post_id
+tag_id
+
+Comments
+---------
+id
+post_id
+user_id
+comment
+parent_comment
+created_at
+
+Likes
+------
+user_id
+post_id
+
+Bookmarks
+----------
+user_id
+post_id
+
+Followers
+----------
+follower_id
+following_id
+```
+
+---
+
+# Phase 3 — API Planning
+
+## Authentication
+
+```
+POST /register
+
+POST /login
+
+POST /logout
+
+POST /forgot-password
+
+POST /reset-password
+```
+
+---
+
+## Users
+
+```
+GET /users/profile
+
+PUT /users/profile
+
+GET /users/:id
+```
+
+---
+
+## Blogs
+
+```
+GET /posts
+
+GET /posts/:id
+
+POST /posts
+
+PUT /posts/:id
+
+DELETE /posts/:id
+```
+
+---
+
+## Search
+
+```
+GET /search?q=python
+
+GET /categories
+
+GET /tags
+```
+
+---
+
+## Comments
+
+```
+POST /comments
+
+DELETE /comments
+
+GET /comments/:postId
+```
+
+---
+
+## Likes
+
+```
+POST /like
+
+DELETE /like
+```
+
+---
+
+## Bookmarks
+
+```
+POST /bookmark
+
+GET /bookmark
+```
+
+---
+
+# Phase 4 — Backend Workflow
+
+```
+User Request
+
+↓
+
+API Endpoint
+
+↓
+
+Authentication Middleware
+
+↓
+
+Validation
+
+↓
+
+Business Logic
+
+↓
+
+Database
+
+↓
+
+JSON Response
+```
+
+Example:
+
+```
+User clicks Publish
+
+↓
+
+POST /posts
+
+↓
+
+JWT Verification
+
+↓
+
+Validate title/content
+
+↓
+
+Save in PostgreSQL
+
+↓
+
+Return Success
+```
+
+---
+
+# Phase 5 — Frontend Pages
+
+## Public Pages
+
+```
+Home
+
+Explore
+
+Blog Detail
+
+Search
+
+Login
+
+Register
+
+Author Profile
+
+404
+```
+
+---
+
+## Private Pages
+
+```
+Dashboard
+
+Create Blog
+
+Edit Blog
+
+Bookmarks
+
+My Blogs
+
+Settings
+
+Notifications
+```
+
+---
+
+# Phase 6 — Components
+
+```
+Navbar
+
+Footer
+
+Blog Card
+
+Blog Editor
+
+Comment Box
+
+Profile Card
+
+Category Chip
+
+Tag Chip
+
+Search Bar
+
+Pagination
+
+Loader
+
+Toast
+
+Modal
+```
+
+---
+
+# Phase 7 — Folder Structure
+
+```
+blog-platform
+
+│
+├── frontend
+│
+│   ├── public
+│
+│   ├── src
+│   │
+│   ├── assets
+│   ├── components
+│   ├── pages
+│   ├── layouts
+│   ├── hooks
+│   ├── services
+│   ├── context
+│   ├── utils
+│   ├── routes
+│   ├── styles
+│   └── App.jsx
+│
+├── backend
+│
+│   ├── app
+│   │
+│   ├── api
+│   ├── auth
+│   ├── database
+│   ├── middleware
+│   ├── models
+│   ├── schemas
+│   ├── services
+│   ├── utils
+│   └── main.py
+│
+├── docs
+│
+├── README.md
+│
+└── docker-compose.yml
+```
+
+---
+
+# Phase 8 — Development Roadmap
+
+## Sprint 1 (Foundation)
+
+- Set up Git repository
+- Create React app
+- Set up FastAPI
+- Configure PostgreSQL
+- Connect backend to database
+- Define database models
+- Add migrations
+
+**Milestone:** Project skeleton is ready.
+
+---
+
+## Sprint 2 (Authentication)
+
+- Register
+- Login
+- JWT
+- Password hashing
+- Protected routes
+- Logout
+
+**Milestone:** Users can securely sign in.
+
+---
+
+## Sprint 3 (Blog CRUD)
+
+- Create blog
+- Edit blog
+- Delete blog
+- View blog
+- Draft support
+
+**Milestone:** Core blogging functionality works.
+
+---
+
+## Sprint 4 (Content Discovery)
+
+- Categories
+- Tags
+- Search
+- Pagination
+- Filters
+
+**Milestone:** Users can easily find content.
+
+---
+
+## Sprint 5 (Engagement)
+
+- Likes
+- Comments
+- Replies
+- Bookmarks
+- Follow authors
+
+**Milestone:** User interaction features are complete.
+
+---
+
+## Sprint 6 (User Dashboard)
+
+- My posts
+- Drafts
+- Analytics (views, likes)
+- Profile editing
+- Notifications (optional)
+
+**Milestone:** Personalized user experience.
+
+---
+
+## Sprint 7 (Polish)
+
+- Dark mode
+- Loading skeletons
+- Responsive design
+- Error handling
+- Form validation
+- Empty states
+
+**Milestone:** Production-quality UI/UX.
+
+---
+
+## Sprint 8 (Deployment)
+
+- Deploy frontend (e.g., Vercel)
+- Deploy backend (e.g., Render)
+- Use a managed PostgreSQL service (e.g., Neon)
+- Configure environment variables
+- Enable HTTPS
+- Add a custom domain (optional)
+
+**Milestone:** Live application accessible to users.

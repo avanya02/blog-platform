@@ -1,0 +1,7 @@
+--git branches structure
+
+-main -> prod
+-test-front -> staging front -> all changes tested should be pushed to test-front and then only to main. 
+-test-back -> staging backend -> all changes tested should be pushed to test-back and then only to main. 
+
+create new brannch for every feature. syntax -> feature-feature_name    
