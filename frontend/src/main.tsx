@@ -1,31 +1,27 @@
 import { FormEvent, StrictMode, useEffect, useState } from "react";
-import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 
 const api = "http://localhost:8000/api/v1";
 const token = () => localStorage.getItem("accessToken");
+const request = (path: string, options: RequestInit = {}) => fetch(`${api}${path}`, { ...options, headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json", ...options.headers } });
+type Post = { id: number; title: string; content: string; status: "draft" | "published"; reading_time: number; updated_at: string };
 
-function AuthPage({ register = false }: { register?: boolean }) {
-  const navigate = useNavigate(); const [error, setError] = useState("");
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget));
-    const response = await fetch(`${api}/auth/${register ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-    const body = await response.json(); if (!response.ok) return setError(body.detail ?? "Unable to continue");
-    if (register) return navigate("/login"); localStorage.setItem("accessToken", body.access_token); navigate("/dashboard");
-  }
-  return <main><h1>{register ? "Create account" : "Welcome back"}</h1><form onSubmit={submit}>
-    {register && <input name="username" placeholder="Username" minLength={3} required />}
-    <input name="email" type="email" placeholder="Email" required /><input name="password" type="password" placeholder="Password" minLength={8} required />
-    <button>{register ? "Register" : "Sign in"}</button>{error && <p role="alert">{error}</p>}
-  </form><p><Link to={register ? "/login" : "/register"}>{register ? "Already have an account? Sign in" : "Need an account? Register"}</Link></p></main>;
-}
+function AuthPage({ register = false }: { register?: boolean }) { const navigate = useNavigate(); const [error, setError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); const response = await fetch(`${api}/auth/${register ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); const body = await response.json(); if (!response.ok) return setError(body.detail ?? "Unable to continue"); if (register) return navigate("/login"); localStorage.setItem("accessToken", body.access_token); navigate("/dashboard"); }
+  return <main><h1>{register ? "Create account" : "Welcome back"}</h1><form onSubmit={submit}>{register && <input name="username" placeholder="Username" minLength={3} required />}<input name="email" type="email" placeholder="Email" required /><input name="password" type="password" placeholder="Password" minLength={8} required /><button>{register ? "Register" : "Sign in"}</button>{error && <p role="alert">{error}</p>}</form><p><Link to={register ? "/login" : "/register"}>{register ? "Already have an account? Sign in" : "Need an account? Register"}</Link></p></main>; }
 
-function Dashboard() { const navigate = useNavigate(); const [name, setName] = useState("");
-  if (!token()) return <Navigate to="/login" replace />;
-  useEffect(() => { fetch(`${api}/auth/me`, { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.ok ? r.json() : null).then(user => user && setName(user.username)); }, []);
-  return <main><h1>Dashboard</h1><p>{name ? `Signed in as ${name}.` : "Loading your profile..."}</p><button onClick={() => { localStorage.removeItem("accessToken"); navigate("/login"); }}>Sign out</button></main>;
-}
+function Guard({ children }: { children: React.ReactNode }) { return token() ? <>{children}</> : <Navigate to="/login" replace />; }
+function Dashboard() { const navigate = useNavigate(); return <main><h1>Dashboard</h1><p>Manage your writing.</p><p><Link to="/posts/new">Write a post</Link> · <Link to="/posts/mine">My posts</Link></p><button onClick={() => { localStorage.removeItem("accessToken"); navigate("/login"); }}>Sign out</button></main>; }
 
-function App() { return <Routes><Route path="/" element={<main><h1>Blog Platform</h1><Link to="/login">Sign in</Link></main>} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /><Route path="/dashboard" element={<Dashboard />} /></Routes>; }
+function Editor() { const { id } = useParams(); const navigate = useNavigate(); const [post, setPost] = useState<Partial<Post>>({ title: "", content: "", status: "draft" }); const [error, setError] = useState("");
+  useEffect(() => { if (id) request("/posts/mine").then(r => r.json()).then((posts: Post[]) => setPost(posts.find(p => p.id === Number(id)) ?? {})); }, [id]);
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const method = id ? "PUT" : "POST"; const response = await request(id ? `/posts/${id}` : "/posts", { method, body: JSON.stringify(post) }); const body = await response.json(); if (!response.ok) return setError(body.detail ?? "Unable to save"); navigate("/posts/mine"); }
+  return <main><h1>{id ? "Edit post" : "Write a post"}</h1><form onSubmit={submit}><input value={post.title ?? ""} onChange={e => setPost({ ...post, title: e.target.value })} placeholder="Title" minLength={3} required /><textarea value={post.content ?? ""} onChange={e => setPost({ ...post, content: e.target.value })} placeholder="Start writing…" required rows={14} /><select value={post.status} onChange={e => setPost({ ...post, status: e.target.value as "draft" | "published" })}><option value="draft">Save as draft</option><option value="published">Publish</option></select><button>Save post</button>{error && <p role="alert">{error}</p>}</form><p><Link to="/posts/mine">Back to my posts</Link></p></main>; }
+
+function MyPosts() { const [posts, setPosts] = useState<Post[]>([]); const load = () => request("/posts/mine").then(r => r.json()).then(setPosts); useEffect(() => { void load(); }, []);
+  async function remove(id: number) { if (confirm("Delete this post?")) { await request(`/posts/${id}`, { method: "DELETE" }); load(); } }
+  return <main><h1>My posts</h1><p><Link to="/posts/new">Write a post</Link></p>{posts.length === 0 ? <p>You have not written anything yet.</p> : <ul>{posts.map(post => <li key={post.id}><strong>{post.title}</strong> — {post.status} · {post.reading_time} min <Link to={`/posts/${post.id}/edit`}>Edit</Link> <button onClick={() => remove(post.id)}>Delete</button></li>)}</ul>}<p><Link to="/dashboard">Back to dashboard</Link></p></main>; }
+function App() { return <Routes><Route path="/" element={<main><h1>Blog Platform</h1><Link to="/login">Sign in</Link></main>} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /><Route path="/dashboard" element={<Guard><Dashboard /></Guard>} /><Route path="/posts/new" element={<Guard><Editor /></Guard>} /><Route path="/posts/mine" element={<Guard><MyPosts /></Guard>} /><Route path="/posts/:id/edit" element={<Guard><Editor /></Guard>} /></Routes>; }
 createRoot(document.getElementById("root")!).render(<StrictMode><BrowserRouter><App /></BrowserRouter></StrictMode>);
