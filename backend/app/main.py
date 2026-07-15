@@ -8,6 +8,7 @@ from app.api.posts import router as posts_router
 from app.api.discovery import router as discovery_router
 from app.api.engagement import router as engagement_router
 from app.api.dashboard import router as dashboard_router
+from app.api.admin import router as admin_router
 from app.core.config import get_settings
 import app.models  # noqa: F401 - registers SQLAlchemy metadata at application startup
 
@@ -27,3 +28,4 @@ app.include_router(posts_router, prefix="/api/v1")
 app.include_router(discovery_router, prefix="/api/v1")
 app.include_router(engagement_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")

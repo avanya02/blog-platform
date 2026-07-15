@@ -33,3 +33,6 @@ def require_admin(current_user: CurrentUser) -> User:
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrator access is required")
     return current_user
+
+
+AdminUser = Annotated[User, Depends(require_admin)]
