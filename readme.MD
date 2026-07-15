@@ -21,3 +21,11 @@ This repository contains a React frontend and a FastAPI backend for a modern blo
 The API health endpoint is available at `http://localhost:8000/api/v1/health`.
 
 For local schema verification without PostgreSQL, the backend defaults to SQLite when no `.env` file is present.
+
+## Production configuration
+
+- Set `DATABASE_URL` to the managed PostgreSQL connection string.
+- Set a unique, high-entropy `SECRET_KEY`; never use the development default.
+- Set `CORS_ORIGINS` to the deployed frontend origin.
+- Copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_URL` to the deployed API's `/api/v1` URL before building the frontend.
+- Run `alembic upgrade head` as part of each backend release.
