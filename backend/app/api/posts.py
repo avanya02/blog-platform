@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 
 from app.api.dependencies import CurrentUser, DbSession
-from app.models.blog import Post, PostStatus
+from app.models.blog import Category, Post, PostStatus, Tag, post_tags
 from app.schemas.post import PostCreateRequest, PostResponse, PostUpdateRequest
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -37,8 +37,11 @@ def get_owned_post(post_id: int, current_user: CurrentUser, db: DbSession) -> Po
 
 
 @router.get("", response_model=list[PostResponse])
-def list_posts(db: DbSession, page: int = Query(1, ge=1), page_size: int = Query(12, ge=1, le=50)) -> list[Post]:
-    return list(db.scalars(select(Post).where(Post.status == PostStatus.PUBLISHED).order_by(Post.published_at.desc()).offset((page - 1) * page_size).limit(page_size)))
+def list_posts(db: DbSession, page: int = Query(1, ge=1), page_size: int = Query(12, ge=1, le=50), category: str | None = None, tag: str | None = None) -> list[Post]:
+    statement = select(Post).where(Post.status == PostStatus.PUBLISHED)
+    if category: statement = statement.join(Category).where(Category.slug == category)
+    if tag: statement = statement.join(post_tags).join(Tag).where(Tag.slug == tag)
+    return list(db.scalars(statement.order_by(Post.published_at.desc()).offset((page - 1) * page_size).limit(page_size)))
 
 
 @router.get("/mine", response_model=list[PostResponse])

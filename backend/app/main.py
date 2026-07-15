@@ -5,6 +5,7 @@ from app.api.health import router as health_router
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 from app.api.posts import router as posts_router
+from app.api.discovery import router as discovery_router
 from app.core.config import get_settings
 import app.models  # noqa: F401 - registers SQLAlchemy metadata at application startup
 
@@ -21,3 +22,4 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(posts_router, prefix="/api/v1")
+app.include_router(discovery_router, prefix="/api/v1")
