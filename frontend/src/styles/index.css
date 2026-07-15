@@ -9,7 +9,9 @@ nav div { display: flex; gap: clamp(.7rem, 2.4vw, 2rem); align-items: center; }
 nav a { font-size: .67rem; text-transform: uppercase; }
 nav .brand { font-family: "Playfair Display", Georgia, serif; font-size: 1.25rem; letter-spacing: -.04em; text-transform: none; }
 main { width: min(960px, calc(100% - 3rem)); min-height: 62vh; margin: 5.5rem auto; padding: clamp(1.5rem, 6vw, 5rem) clamp(1.3rem, 6vw, 5.7rem); background: transparent; animation: reveal .7s cubic-bezier(.2,.8,.2,1) both; }
-.hero { min-height: calc(100vh - 8rem); margin-top: 1.25rem; margin-bottom: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+.hero { position: relative; min-height: calc(100vh - 8rem); margin-top: 1.25rem; margin-bottom: 2.5rem; display: flex; flex-direction: column; justify-content: center; isolation: isolate; }
+.hero::before { position: absolute; z-index: -1; top: 50%; right: clamp(-3.5rem, -2vw, -1rem); width: clamp(250px, 34vw, 430px); aspect-ratio: 1; content: ""; opacity: .9; background: url("../assets/hero-flower.png") center / contain no-repeat; transform: translateY(-50%); }
+.hero::after { display: none; }
 .hero h1 { font-size: clamp(4rem, 10vw, 7.5rem); }
 .eyebrow { margin: 0 0 1rem; font: 500 .72rem "DM Mono", monospace; letter-spacing: .13em; text-transform: uppercase; }
 .intro { max-width: 520px; font-size: 1.1rem; }
@@ -49,6 +51,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid #fff; outline-offset:
 [role="alert"] { padding: .65rem .8rem; border-left: 3px solid #fff; color: #fff; background: rgb(118 51 58 / 22%); font: .8rem "DM Mono", monospace; }
 article { max-width: 720px; padding: 1.5rem 0; border-block: 1px solid rgb(255 255 255 / 35%); color: #fffaf6; font-size: 1.05rem; white-space: pre-wrap; }
 article p { font-size: 1rem; }
+footer { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; width: min(960px, calc(100% - 3rem)); margin: 2rem auto 0; padding: 2.2rem 0 2.6rem; border-top: 1px solid rgb(255 255 255 / 36%); color: #fffaf6; }
+footer strong { font: 700 1.35rem "Playfair Display", Georgia, serif; }
+footer p { margin: .45rem 0 0; font-size: .78rem; font-weight: 400; }
+.footer-links { display: flex; justify-content: flex-end; gap: 1.3rem; align-items: start; }
+footer small { grid-column: 1 / -1; opacity: .72; font: .62rem "DM Mono", monospace; }
 @keyframes reveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 600px) { nav { width: calc(100% - 2rem); padding-top: 1.25rem; } nav div { gap: .7rem; } nav a { font-size: .58rem; } nav .brand { font-size: 1.05rem; } main { width: calc(100% - 2rem); min-height: 100vh; margin: 0 auto; padding: 4.5rem 0 2.5rem; } h1 { font-size: 3.35rem; } .hero { min-height: calc(100vh - 5rem); margin-top: 0; margin-bottom: 1.5rem; } .sample-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
